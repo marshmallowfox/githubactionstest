@@ -9,6 +9,7 @@ class Home extends BaseController
     )
     : string
     {
+        print_r('xxx');
         return view('welcome_message');
     }
 }
