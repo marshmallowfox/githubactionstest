@@ -54,18 +54,32 @@ jobs:
       - name: Rebase main onto dev
         if: ${{ success() }}
         run: |
-          # Сохранение текущего коммита в stash
+        # Проверка наличия локальных изменений перед добавлением в stash
+          if [ -n "$(git status --porcelain)" ]; then
           git stash push -m "Temporary save"
+          fi
 
-          # Переключение на ветку main
+          # Проверка существования ветки main
+          if git show-ref --verify --quiet refs/heads/main; then
           git checkout main
+          else
+          echo "Main branch does not exist locally. Fetching from remote."
+          git fetch origin main:main
+          git checkout main
+          fi
 
-          # Ребейс с текущей ветки (предполагается, что dev — текущая ветка)
-          git rebase dev --strategy-option theirs
+          # Ребейс main на текущую ветку (предполагается, что dev — текущая ветка)
+          git rebase dev --strategy-option theirs || {
+          echo "Rebase failed. Aborting rebase.";
+          git rebase --abort;
+          exit 1;
+        }
 
-          # Закоммитить изменения
+          # Закоммитить изменения, если ребейс добавил что-то новое
+          if [ -n "$(git status --porcelain)" ]; then
           git add .
           git commit -m "Rebase main onto dev with resolved conflicts"
+          fi
 
           # Запушить изменения
           git push origin main --force-with-lease
@@ -73,5 +87,7 @@ jobs:
           # Вернуться на предыдущую ветку
           git checkout dev
 
-          # Вернуть сохранённый коммит из stash
+          # Вернуть сохранённый коммит из stash, если он был
+          if git stash list | grep -q "Temporary save"; then
           git stash pop
+          fi
