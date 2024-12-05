@@ -4,11 +4,8 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index
-    (
-    )
-    : string
-    {
+    public function index(
+    ): string {
         print_r(
             'xxx'
         );
@@ -28,8 +25,7 @@ class Home extends BaseController
         fail'
         );
 
-        print_r
-        (
+        print_r(
             '
         ok'
         );
