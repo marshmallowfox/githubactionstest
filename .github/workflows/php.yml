@@ -54,16 +54,24 @@ jobs:
       - name: Rebase main onto dev
         if: ${{ success() }}
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          # Сохранение текущего коммита в stash
+          git stash push -m "Temporary save"
 
-          git add -A
-          git diff --quiet && echo "No changes to commit" || git commit -m "Save changes before rebase"
-          git stash || echo "No local changes to stash"
+          # Переключение на ветку main
+          git checkout main
 
-          git fetch origin
-          git checkout main || git checkout -b main
-          git pull origin main --rebase || echo "No remote changes to pull"
+          # Ребейс с текущей ветки (предполагается, что dev — текущая ветка)
+          git rebase dev --strategy-option theirs
 
-          git rebase origin/dev --strategy-option theirs
+          # Закоммитить изменения
+          git add .
+          git commit -m "Rebase main onto dev with resolved conflicts"
+
+          # Запушить изменения
           git push origin main --force-with-lease
+
+          # Вернуться на предыдущую ветку
+          git checkout dev
+
+          # Вернуть сохранённый коммит из stash
+          git stash pop
