@@ -40,7 +40,10 @@ jobs:
       - name: Run PHP-CS-Fixer
         run: vendor/bin/php-cs-fixer fix --verbose
 
-      - name: Commit and push changes
+      - name: Run Tests
+        run: composer run-script test  # Убедитесь, что есть test-скрипт в composer.json
+
+      - name: Commit changes in dev
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -48,13 +51,13 @@ jobs:
           git diff --quiet && echo "No changes to commit" || git commit -m "Apply PHP-CS-Fixer changes"
           git push origin dev
 
-      - name: Run Tests
-        run: composer run-script test  # Убедитесь, что есть test-скрипт в composer.json
-
       - name: Merge dev into main
         if: ${{ success() }}  # Условие: все предыдущие шаги выполнены успешно
         run: |
-          git fetch origin main
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git diff --quiet && echo "No changes to commit" || git commit -m "Save changes in dev before merge"
           git checkout main
           git merge --no-ff dev -m "Merge branch 'dev' into main"
           git push origin main
