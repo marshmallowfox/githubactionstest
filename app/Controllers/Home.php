@@ -4,8 +4,11 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index(
-    ): string {
+    public function index
+    (
+    )
+    : string
+    {
         print_r(
             'xxx'
         );
@@ -23,6 +26,12 @@ class Home extends BaseController
         print_r(
             '
         fail'
+        );
+
+        print_r
+        (
+            '
+        ok'
         );
 
         return view('welcome_message');
