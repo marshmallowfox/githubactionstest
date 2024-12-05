@@ -17,6 +17,11 @@ class Home extends BaseController
             '
         fan');
 
+        print_r
+        (
+            '
+        said');
+
         return view('welcome_message');
     }
 }
