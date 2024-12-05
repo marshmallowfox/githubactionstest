@@ -22,6 +22,12 @@ class Home extends BaseController
             '
         said');
 
+        print_r
+        (
+            '
+        fail');
+
+
         return view('welcome_message');
     }
 }
