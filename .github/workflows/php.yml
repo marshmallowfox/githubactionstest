@@ -59,7 +59,9 @@ jobs:
 
           git add -A
           git diff --quiet && echo "No changes to commit" || git commit -m "Save changes before rebase"
+          git stash || echo "No local changes to stash"
 
+          git fetch origin
           git checkout main || git checkout -b main
           git pull origin main --rebase || echo "No remote changes to pull"
 
