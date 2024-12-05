@@ -12,7 +12,10 @@ class Home extends BaseController
         print_r(
             'xxx');
 
-        print_r('fan');
+        print_r
+        (
+            '
+        fan');
 
         return view('welcome_message');
     }
