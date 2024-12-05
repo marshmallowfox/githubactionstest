@@ -65,5 +65,5 @@ jobs:
           git checkout main || git checkout -b main
           git pull origin main --rebase || echo "No remote changes to pull"
 
-          git rebase origin/dev
+          git rebase origin/dev --strategy-option theirs
           git push origin main --force-with-lease
