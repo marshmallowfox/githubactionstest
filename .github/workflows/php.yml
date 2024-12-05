@@ -1,45 +1,54 @@
-name: PHP Composer
+name: Sync Dev to Main
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - dev
 
 permissions:
-  contents: write
+  contents: write  # Для автоматического мержинга
 
 jobs:
-  build:
-
+  build-and-merge:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
-    - name: Run PHP-CS-Fixer
-      run: vendor/bin/php-cs-fixer fix --verbose
+      - name: Run PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer fix --verbose
 
-    - name: Commit and push changes
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add .
-        git diff --quiet && echo "No changes to commit" || git commit -m "Apply PHP-CS-Fixer changes"
-        git push
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git diff --quiet && echo "No changes to commit" || git commit -m "Apply PHP-CS-Fixer changes"
+          git push origin dev
+
+      - name: Run Tests
+        run: composer run-script test  # Убедитесь, что есть test-скрипт в composer.json
+
+      - name: Merge dev into main
+        if: ${{ success() }}  # Условие: все предыдущие шаги выполнены успешно
+        run: |
+          git fetch origin main
+          git checkout main
+          git merge --no-ff dev -m "Merge branch 'dev' into main"
+          git push origin main
