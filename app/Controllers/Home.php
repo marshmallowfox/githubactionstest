@@ -4,29 +4,26 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index
-    (
-    )
-    : string
-    {
+    public function index(
+    ): string {
         print_r(
-            'xxx');
+            'xxx'
+        );
 
-        print_r
-        (
+        print_r(
             '
-        fan');
+        fan'
+        );
 
-        print_r
-        (
+        print_r(
             '
-        said');
+        said'
+        );
 
-        print_r
-        (
+        print_r(
             '
-        fail');
-
+        fail'
+        );
 
         return view('welcome_message');
     }
